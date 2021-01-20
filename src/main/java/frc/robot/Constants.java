@@ -145,7 +145,6 @@ public final class Constants {
         public static final int scoopLowGoalButtonID = 2;
         public static final int scoopIntakePosButtonID = 4;
         public static final int scoopLoadingStationButtonID = 5;
-        //public static final int scoopLevelPosButtonID = 7;
   
         //----- Control Panel Button IDs -----
         public static final int controlPanelActivateButtonID = 7;

@@ -29,7 +29,7 @@ public class Climb extends SubsystemBase {
 
   public void initTalons(WPI_TalonSRX motor, boolean isElevator) {
     motor.configFactoryDefault();
-    //motor.setSafetyEnabled(true);
+   //motor.setSafetyEnabled(true);
     motor.setInverted(isElevator);
     motor.configSelectedFeedbackSensor(isElevator ? FeedbackDevice.CTRE_MagEncoder_Relative : FeedbackDevice.IntegratedSensor);
     motor.setSensorPhase(false);
@@ -40,9 +40,9 @@ public class Climb extends SubsystemBase {
     motor.configMotionAcceleration(isElevator ? ClimbConstants.climbElevatorAcceleration : ClimbConstants.climbWinchAcceleration);
     motor.configNominalOutputForward(0);
     motor.configNominalOutputReverse(0);
-    motor.configPeakOutputForward(0);
+    motor.configPeakOutputForward(1);
     motor.configPeakOutputReverse(-1);
-    motor.configAllowableClosedloopError(0, 100, 0);
+    motor.configAllowableClosedloopError(0, 0, 100);
     motor.setSelectedSensorPosition(0);
   }
 
@@ -58,6 +58,7 @@ public class Climb extends SubsystemBase {
     else {
       elevator.set(0 * RobotContainer.getClimbY());
     }
+    //elevator.set(0.5 * RobotContainer.getClimbY());
   }
 
   public void manualWinch() {
@@ -72,6 +73,7 @@ public class Climb extends SubsystemBase {
     else {
       winch.set(0 * RobotContainer.getClimbY() * ClimbConstants.winchMultiplierConstant);
     }
+    //winch.set(0.5 *RobotContainer.getClimbY());
   }
 
   public void setElevatorPos(int position) {

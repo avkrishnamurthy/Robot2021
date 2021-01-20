@@ -88,19 +88,19 @@ public class RobotContainer {
 
     //Climb Buttons
     //Manual
-    new JoystickButton(buttonStick, OIConstants.climbElevatorManualButtonID)
-        .toggleWhenPressed(new ManualElevator(climb));
+    // new JoystickButton(buttonStick, OIConstants.climbElevatorManualButtonID)
+    //     .toggleWhenPressed(new ManualElevator(climb));
     new JoystickButton(buttonStick, OIConstants.climbWinchManualButtonID)
         .toggleWhenPressed(new ManualWinch(climb));
     new JoystickButton(buttonStick, OIConstants.climbManualButtonID)
         .toggleWhenPressed(new ManualClimb(climb));
     //Automated
-    // new JoystickButton(buttonStick, OIConstants.climbPresetButtonID)
-    //     .whenPressed(new PresetClimb(climb));
-    // new JoystickButton(buttonStick, OIConstants.climbUpButtonID)
-    //     .whenPressed(new LevelClimb(climb));
-    new JoystickButton(buttonStick, OIConstants.climbEndButtonID)
-        .whenPressed(new LiftOff(climb));
+    new JoystickButton(buttonStick, OIConstants.climbPresetButtonID)
+        .whenPressed(new PresetClimb(climb));
+    new JoystickButton(buttonStick, OIConstants.climbUpButtonID)
+        .whenPressed(new LevelClimb(climb));
+    // new JoystickButton(buttonStick, OIConstants.climbEndButtonID)
+    //     .whenPressed(new LiftOff(climb));
 
     //Scoop Arm Buttons
     //Manual
@@ -123,10 +123,10 @@ public class RobotContainer {
     //Control Panel Buttons
     new JoystickButton(buttonStick, OIConstants.controlPanelActivateButtonID)
         .toggleWhenPressed(new Activate(controlPanel));
-    // new JoystickButton(buttonStick, OIConstants.controlPanelRotationButtonID)
-    //     .whenPressed(new Rotation(controlPanel));
-    // new JoystickButton(buttonStick, OIConstants.controlPanelPositionButtonID)
-    //     .whenPressed(new Position(controlPanel));
+    new JoystickButton(buttonStick, OIConstants.controlPanelRotationButtonID)
+        .whenPressed(new Rotation(controlPanel));
+    new JoystickButton(buttonStick, OIConstants.controlPanelPositionButtonID)
+        .toggleWhenPressed(new Position(controlPanel));
   }
 
   public static double getClimbY() {
