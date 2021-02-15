@@ -35,12 +35,12 @@ public final class Constants {
         public static final boolean kRightEncoderReversed = false;
 
 
-        public static final double kTrackwidthMeters = 0.54;
+        public static final double kTrackWidthMeters = 0.54;
         public static final DifferentialDriveKinematics kDriveKinematics =
-            new DifferentialDriveKinematics(kTrackwidthMeters);
+            new DifferentialDriveKinematics(kTrackWidthMeters);
     
-        public static final int kEncoderCPR = 2028;
-        public static final double kWheelDiameterMeters = 0.152;
+        public static final int kEncoderCPR = 2048;
+        public static final double kWheelDiameterMeters = 0.152; //6 inches, 0.152 meters
         public static final double kEncoderDistancePerPulse =
             // Assumes the encoders are directly mounted on the wheel shafts
             (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
@@ -56,6 +56,8 @@ public final class Constants {
         public static final double driveDValue = 0;
         public static final int driveHighGearVelocity = 0;
         public static final int driveHighGearAcceleration = 0;
+
+        public static final int driveEncoderMOE = 100;
 
     }
 
@@ -107,7 +109,7 @@ public final class Constants {
         public static final int bottomIntakeTalonID = 8;
 
         //Assuming 0 position is all the way back (starting a match position)
-        public static final int scoopArmIntakePosition = -44900;
+        public static final int scoopArmIntakePosition = -46000;
         public static final int scoopArmLoadingStationPosition = 0;
         //public static final int scoopArmLevelPosition = -8200; //-9063
         public static final int scoopArmLowGoalPosition = -8200; //-14626
@@ -131,8 +133,8 @@ public final class Constants {
         public static final int isQuickTurnButtonID = 1;
   
         // Throttle Stick
-        public static final int driveHighGearButtonID = 3;
-        public static final int driveLowGearButtonID = 2;
+        public static final int driveHighGearButtonID = 1;
+        public static final int driveLowGearButtonID = 1;
 
         //Button Stick
 
@@ -184,6 +186,8 @@ public final class Constants {
         public static final double kMaxSpeedMetersPerSecond = 1.5; //21.6 * 0.3048;
         public static final double kMaxAccelerationMetersPerSecondSquared = 1; //23.9 * 0.3048;
 
+        public static final double kAutoDriveDistanceMeters = 0.305; //12 inches
+        public static final double kAutoDriveSpeed = 0.2; 
         // Reasonable baseline values for a RAMSETE follower in units of meters and seconds
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;

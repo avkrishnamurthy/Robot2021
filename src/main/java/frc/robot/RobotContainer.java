@@ -7,11 +7,35 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.command.CommandGroup;
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandGroupBase;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.AutonomousConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.ScoopConstants;
+import frc.robot.commands.AutoDriveShoot;
+import frc.robot.commands.AutoIntakeShoot;
+import frc.robot.commands.DriveForward;
 import frc.robot.commands.climb.LevelClimb;
 import frc.robot.commands.climb.LiftOff;
 import frc.robot.commands.climb.ManualClimb;
@@ -24,6 +48,7 @@ import frc.robot.commands.controlPanel.Rotation;
 import frc.robot.commands.driveTrain.CurvatureDrive;
 import frc.robot.commands.driveTrain.HighGear;
 import frc.robot.commands.driveTrain.LowGear;
+import frc.robot.commands.driveTrain.StopDrive;
 import frc.robot.commands.scoop.ScoopExpel;
 import frc.robot.commands.scoop.ScoopIntake;
 import frc.robot.commands.scoop.ScoopIntakePos;
@@ -49,28 +74,92 @@ public class RobotContainer {
   private final Climb climb;
   private final Scoop scoop;
   private final ControlPanel controlPanel;
+  private final Command simpleAuto;
+  private final Command complexAuto;
+  private final Command autoThree;
+  private final RamseteCommand ramseteCommand;
+  private SequentialCommandGroup test; 
   static Joystick buttonStick;
-  Joystick throttleStick;
-  Joystick curveStick;
+  static Joystick throttleStick;
+  static Joystick curveStick;
   JoystickButton isQuickTurnButton;
+  SendableChooser<Command> chooser = new SendableChooser<>();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    driveTrain = new DriveTrain();
-    climb = new Climb();
-    scoop = new Scoop();
-    controlPanel = new ControlPanel();
-    throttleStick = new Joystick(OIConstants.throttleJoystickID);
-    curveStick = new Joystick(OIConstants.curveJoystickID);
-    buttonStick = new Joystick(OIConstants.buttonJoystickID);
-    isQuickTurnButton = new JoystickButton(curveStick, OIConstants.isQuickTurnButtonID);
-    // Configure the button bindings
-    configureButtonBindings();
+      driveTrain=new DriveTrain();
+      climb=new Climb();
+      scoop=new Scoop();
+      controlPanel=new ControlPanel();
+      simpleAuto=new DriveForward(driveTrain,AutonomousConstants.kAutoDriveDistanceMeters,AutonomousConstants.kAutoDriveSpeed);
+      complexAuto = new AutoDriveShoot(driveTrain, scoop);
+      autoThree = new AutoIntakeShoot(driveTrain, scoop);
 
-    driveTrain.setDefaultCommand(new CurvatureDrive(driveTrain, () -> throttleStick.getY(GenericHID.Hand.kLeft),
-        () -> -curveStick.getX(GenericHID.Hand.kRight), () -> isQuickTurnButton.get()));
+      
+
+      throttleStick=new Joystick(OIConstants.throttleJoystickID);
+      curveStick=new Joystick(OIConstants.curveJoystickID);
+      buttonStick=new Joystick(OIConstants.buttonJoystickID);
+      isQuickTurnButton=new JoystickButton(curveStick,OIConstants.isQuickTurnButtonID);
+      // Configure the button bindings
+      configureButtonBindings();
+
+      driveTrain.setDefaultCommand(new CurvatureDrive(driveTrain, () ->
+      throttleStick.getY(GenericHID.Hand.kLeft),
+      () -> -curveStick.getX(GenericHID.Hand.kRight), () ->
+      isQuickTurnButton.get()));
+
+        // var autoVoltageConstraint = 
+    //     new DifferentialDriveVoltageConstraint(
+    //         new SimpleMotorFeedforward(DriveConstants.ksVolts, 
+    //                                    DriveConstants.kvVoltSecondsPerMeter,
+    //                                    DriveConstants.kaVoltSecondsSquaredPerMeter),
+    //         DriveConstants.kDriveKinematics,
+    //     10);
+
+    // TrajectoryConfig config = 
+    //     new TrajectoryConfig(
+    //             AutonomousConstants.kMaxSpeedMetersPerSecond,
+    //             AutonomousConstants.kMaxAccelerationMetersPerSecondSquared)
+    //         .setKinematics(DriveConstants.kDriveKinematics)
+    //         .addConstraint(autoVoltageConstraint);
+    
+            //String trajectoryJSON = "paths/StartToLowGoal.wpilib.json";
+            String trajectoryJSON = "paths/LowGoalToTrench.wpilib.json";
+            Trajectory trajectory = new Trajectory();
+            try {
+                Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+                trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            } catch (IOException ex) {
+                DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+            }
+                ramseteCommand = new RamseteCommand(
+                    trajectory,
+                    driveTrain::getPose,
+                    new RamseteController(AutonomousConstants.kRamseteB, AutonomousConstants.kRamseteZeta),
+                    new SimpleMotorFeedforward(DriveConstants.ksVolts,
+                                               DriveConstants.kvVoltSecondsPerMeter,
+                                               DriveConstants.kaVoltSecondsSquaredPerMeter),
+                    DriveConstants.kDriveKinematics,
+                    driveTrain::getWheelSpeeds, //adjusted getWheelSpeeds first
+                    new PIDController(DriveConstants.kPDriveVel, 0, 0),
+                    new PIDController(DriveConstants.kPDriveVel, 0, 0),
+                    // RamseteCommand passes volts to the callback
+                    driveTrain::tankDriveVolts,
+                    driveTrain);
+            driveTrain.resetOdometry(trajectory.getInitialPose());
+
+            test = new SequentialCommandGroup(ramseteCommand, new ScoopLowGoalPos(scoop), new ScoopExpel(scoop).withTimeout(1));
+
+            chooser.setDefaultOption("Test Auto", test);
+            chooser.addOption("Simple Auto", simpleAuto);
+            chooser.addOption("Complex Auto", complexAuto);
+            chooser.addOption("Auto Three", autoThree);
+
+            Shuffleboard.getTab("Autonomous").add(chooser);
+
   }
 
   /**
@@ -80,58 +169,47 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    //DriveTrain Buttons
-    new JoystickButton(throttleStick, OIConstants.driveHighGearButtonID)
-        .whenPressed(new HighGear(driveTrain));
-    new JoystickButton(throttleStick, OIConstants.driveLowGearButtonID)
-        .whenPressed(new LowGear(driveTrain));
+      // DriveTrain Buttons
+      new JoystickButton(curveStick, OIConstants.driveHighGearButtonID).whenPressed(new HighGear(driveTrain));
+      new JoystickButton(throttleStick, OIConstants.driveLowGearButtonID).whenPressed(new LowGear(driveTrain));
 
-    //Climb Buttons
-    //Manual
-    // new JoystickButton(buttonStick, OIConstants.climbElevatorManualButtonID)
-    //     .toggleWhenPressed(new ManualElevator(climb));
-    new JoystickButton(buttonStick, OIConstants.climbWinchManualButtonID)
-        .toggleWhenPressed(new ManualWinch(climb));
-    new JoystickButton(buttonStick, OIConstants.climbManualButtonID)
-        .toggleWhenPressed(new ManualClimb(climb));
-    //Automated
-    new JoystickButton(buttonStick, OIConstants.climbPresetButtonID)
-        .whenPressed(new PresetClimb(climb));
-    new JoystickButton(buttonStick, OIConstants.climbUpButtonID)
-        .whenPressed(new LevelClimb(climb));
-    // new JoystickButton(buttonStick, OIConstants.climbEndButtonID)
-    //     .whenPressed(new LiftOff(climb));
+      // Climb Buttons
+      // Manual
+      // new JoystickButton(buttonStick, OIConstants.climbElevatorManualButtonID)
+      // .toggleWhenPressed(new ManualElevator(climb));
+      new JoystickButton(buttonStick, OIConstants.climbWinchManualButtonID).toggleWhenPressed(new ManualWinch(climb));
+      new JoystickButton(buttonStick, OIConstants.climbManualButtonID).toggleWhenPressed(new ManualClimb(climb));
+      // Automated
+      //new JoystickButton(buttonStick, OIConstants.climbPresetButtonID).whenPressed(new PresetClimb(climb));
+      //new JoystickButton(buttonStick, OIConstants.climbUpButtonID).whenPressed(new LevelClimb(climb));
+      // new JoystickButton(buttonStick, OIConstants.climbEndButtonID)
+      // .whenPressed(new LiftOff(climb));
 
-    //Scoop Arm Buttons
-    //Manual
-    new JoystickButton(buttonStick, OIConstants.scoopManualButtonID)
-        .toggleWhenPressed(new ScoopManual(scoop));
-    //Automated
-    new JoystickButton(buttonStick, OIConstants.scoopIntakePosButtonID)
-        .whileHeld(new ScoopIntakePos(scoop));
-    new JoystickButton(buttonStick, OIConstants.scoopLoadingStationButtonID)
-        .whileHeld(new ScoopLoadingStationPos(scoop));
-    new JoystickButton(buttonStick, OIConstants.scoopLowGoalButtonID)
-        .whileHeld(new ScoopLowGoalPos(scoop));
+      // Scoop Arm Buttons
+      // Manual
+      new JoystickButton(buttonStick, OIConstants.scoopManualButtonID).toggleWhenPressed(new ScoopManual(scoop));
+      // Automated
+      new JoystickButton(buttonStick, OIConstants.scoopIntakePosButtonID).whileHeld(new ScoopIntakePos(scoop));
+      new JoystickButton(buttonStick, OIConstants.scoopLoadingStationButtonID)
+              .whileHeld(new ScoopLoadingStationPos(scoop));
+      new JoystickButton(buttonStick, OIConstants.scoopLowGoalButtonID).whileHeld(new ScoopLowGoalPos(scoop));
 
-    //Scoop Intake/Expel Buttons
-    new JoystickButton(buttonStick, OIConstants.scoopCollectButtonID)
-        .whileHeld(new ScoopIntake(scoop));
-    new JoystickButton(buttonStick, OIConstants.scoopExpelButtonID)
-        .whileHeld(new ScoopExpel(scoop));
+      // Scoop Intake/Expel Buttons
+      new JoystickButton(buttonStick, OIConstants.scoopCollectButtonID).whileHeld(new ScoopIntake(scoop));
+      new JoystickButton(buttonStick, OIConstants.scoopExpelButtonID).whileHeld(new ScoopExpel(scoop));
 
-    //Control Panel Buttons
-    new JoystickButton(buttonStick, OIConstants.controlPanelActivateButtonID)
-        .toggleWhenPressed(new Activate(controlPanel));
-    new JoystickButton(buttonStick, OIConstants.controlPanelRotationButtonID)
-        .whenPressed(new Rotation(controlPanel));
-    new JoystickButton(buttonStick, OIConstants.controlPanelPositionButtonID)
-        .toggleWhenPressed(new Position(controlPanel));
+      // Control Panel Buttons
+      new JoystickButton(buttonStick, OIConstants.controlPanelActivateButtonID)
+              .toggleWhenPressed(new Activate(controlPanel));
+      new JoystickButton(buttonStick, OIConstants.controlPanelRotationButtonID).whenPressed(new Rotation(controlPanel));
+      new JoystickButton(buttonStick, OIConstants.controlPanelPositionButtonID)
+              .toggleWhenPressed(new Position(controlPanel));
   }
 
   public static double getClimbY() {
-    return buttonStick.getY();
+      return buttonStick.getY();
   }
+
 
 
 
@@ -140,10 +218,16 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  // public Command getAutonomousCommand() {
-  //   // An ExampleCommand will run in autonomous
-  //   //return m_autoCommand;
-  // }
+  public Command getAutonomousCommand() {
+    return chooser.getSelected();
+
+            //return ramseteCommand.andThen(() -> driveTrain.tankDriveVolts(0, 0));
+            //return ramseteCommand.andThen(() -> scoop.setScoopArmPos(ScoopConstants.scoopArmLowGoalPosition));
+            //return ramseteCommand.andThen(new ScoopLowGoalPos(scoop));//, new ScoopExpel(scoop).withTimeout(1));
+            //return ramseteCommand.andThen(new ScoopLowGoalPos(scoop));
+            
+
+  }
 
 
 }

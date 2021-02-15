@@ -22,5 +22,6 @@ public class LowGear extends InstantCommand {
   @Override
   public void initialize() {
     m_driveTrain.shiftToLowGear();
+    m_driveTrain.reInitTalons();
   }
 }
