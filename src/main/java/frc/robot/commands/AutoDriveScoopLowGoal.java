@@ -4,9 +4,8 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.AutonomousConstants;
-import frc.robot.commands.scoop.ScoopExpel;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import frc.robot.commands.driveTrain.StartToLowGoal;
 import frc.robot.commands.scoop.ScoopLowGoalPos;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Scoop;
@@ -14,13 +13,11 @@ import frc.robot.subsystems.Scoop;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class AutoDriveShoot extends SequentialCommandGroup {
-  /** Creates a new AutoDriveShoot. */
-  public AutoDriveShoot(DriveTrain driveTrain, Scoop scoop) {
+public class AutoDriveScoopLowGoal extends ParallelCommandGroup {
+  /** Creates a new AutoDriveScoopLowGoal. */
+  public AutoDriveScoopLowGoal(DriveTrain driveTrain, Scoop scoop) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new ScoopLowGoalPos(scoop), 
-                new DriveForward(driveTrain,AutonomousConstants.kAutoDriveDistanceMeters,AutonomousConstants.kAutoDriveSpeed),
-                new ScoopExpel(scoop).withTimeout(1));
+    addCommands(new StartToLowGoal(driveTrain), new ScoopLowGoalPos(scoop));
   }
 }

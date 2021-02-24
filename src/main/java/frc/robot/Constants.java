@@ -35,7 +35,7 @@ public final class Constants {
         public static final boolean kRightEncoderReversed = false;
 
 
-        public static final double kTrackWidthMeters = 0.54;
+        public static final double kTrackWidthMeters = 9.090140961492919;//0.54;
         public static final DifferentialDriveKinematics kDriveKinematics =
             new DifferentialDriveKinematics(kTrackWidthMeters);
     
@@ -109,7 +109,7 @@ public final class Constants {
         public static final int bottomIntakeTalonID = 8;
 
         //Assuming 0 position is all the way back (starting a match position)
-        public static final int scoopArmIntakePosition = -46000;
+        public static final int scoopArmIntakePosition = -48000;
         public static final int scoopArmLoadingStationPosition = 0;
         //public static final int scoopArmLevelPosition = -8200; //-9063
         public static final int scoopArmLowGoalPosition = -8200; //-14626

@@ -33,9 +33,8 @@ import frc.robot.Constants.AutonomousConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ScoopConstants;
-import frc.robot.commands.AutoDriveShoot;
-import frc.robot.commands.AutoIntakeShoot;
 import frc.robot.commands.DriveForward;
+import frc.robot.commands.AutoShootTrench;
 import frc.robot.commands.climb.LevelClimb;
 import frc.robot.commands.climb.LiftOff;
 import frc.robot.commands.climb.ManualClimb;
@@ -48,6 +47,7 @@ import frc.robot.commands.controlPanel.Rotation;
 import frc.robot.commands.driveTrain.CurvatureDrive;
 import frc.robot.commands.driveTrain.HighGear;
 import frc.robot.commands.driveTrain.LowGear;
+import frc.robot.commands.driveTrain.StartToLowGoal;
 import frc.robot.commands.driveTrain.StopDrive;
 import frc.robot.commands.scoop.ScoopExpel;
 import frc.robot.commands.scoop.ScoopIntake;
@@ -76,14 +76,12 @@ public class RobotContainer {
   private final ControlPanel controlPanel;
   private final Command simpleAuto;
   private final Command complexAuto;
-  private final Command autoThree;
   private final RamseteCommand ramseteCommand;
-  private SequentialCommandGroup test; 
   static Joystick buttonStick;
   static Joystick throttleStick;
   static Joystick curveStick;
   JoystickButton isQuickTurnButton;
-  SendableChooser<Command> chooser = new SendableChooser<>();
+  //SendableChooser<Command> chooser = new SendableChooser<>();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -93,9 +91,8 @@ public class RobotContainer {
       climb=new Climb();
       scoop=new Scoop();
       controlPanel=new ControlPanel();
-      simpleAuto=new DriveForward(driveTrain,AutonomousConstants.kAutoDriveDistanceMeters,AutonomousConstants.kAutoDriveSpeed);
-      complexAuto = new AutoDriveShoot(driveTrain, scoop);
-      autoThree = new AutoIntakeShoot(driveTrain, scoop);
+      simpleAuto=new StartToLowGoal(driveTrain);
+      complexAuto = new AutoShootTrench(driveTrain, scoop);
 
       
 
@@ -126,8 +123,8 @@ public class RobotContainer {
     //         .setKinematics(DriveConstants.kDriveKinematics)
     //         .addConstraint(autoVoltageConstraint);
     
-            //String trajectoryJSON = "paths/StartToLowGoal.wpilib.json";
-            String trajectoryJSON = "paths/LowGoalToTrench.wpilib.json";
+            String trajectoryJSON = "paths/StartToLowGoal.wpilib.json";
+            //String trajectoryJSON = "paths/LowGoalToTrench.wpilib.json";
             Trajectory trajectory = new Trajectory();
             try {
                 Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
@@ -135,30 +132,45 @@ public class RobotContainer {
             } catch (IOException ex) {
                 DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
             }
-                ramseteCommand = new RamseteCommand(
-                    trajectory,
-                    driveTrain::getPose,
-                    new RamseteController(AutonomousConstants.kRamseteB, AutonomousConstants.kRamseteZeta),
-                    new SimpleMotorFeedforward(DriveConstants.ksVolts,
-                                               DriveConstants.kvVoltSecondsPerMeter,
-                                               DriveConstants.kaVoltSecondsSquaredPerMeter),
-                    DriveConstants.kDriveKinematics,
-                    driveTrain::getWheelSpeeds, //adjusted getWheelSpeeds first
-                    new PIDController(DriveConstants.kPDriveVel, 0, 0),
-                    new PIDController(DriveConstants.kPDriveVel, 0, 0),
-                    // RamseteCommand passes volts to the callback
-                    driveTrain::tankDriveVolts,
-                    driveTrain);
+            ramseteCommand = new RamseteCommand(
+                trajectory,
+                driveTrain::getPose,
+                new RamseteController(AutonomousConstants.kRamseteB, AutonomousConstants.kRamseteZeta),
+                new SimpleMotorFeedforward(0.617,
+                                           0.221,
+                                           0.015),
+                DriveConstants.kDriveKinematics,
+                driveTrain::getWheelSpeeds, //adjusted getWheelSpeeds first
+                new PIDController(0.0000000000017, 0, 0),
+                new PIDController(0.0000000000017, 0, 0),
+                //0.00000000000000166
+                // RamseteCommand passes volts to the callback
+                driveTrain::tankDriveVolts,
+                driveTrain);
             driveTrain.resetOdometry(trajectory.getInitialPose());
 
-            test = new SequentialCommandGroup(ramseteCommand, new ScoopLowGoalPos(scoop), new ScoopExpel(scoop).withTimeout(1));
 
-            chooser.setDefaultOption("Test Auto", test);
-            chooser.addOption("Simple Auto", simpleAuto);
-            chooser.addOption("Complex Auto", complexAuto);
-            chooser.addOption("Auto Three", autoThree);
+            //     ramseteCommand = new RamseteCommand(
+            //         trajectory,
+            //         driveTrain::getPose,
+            //         new RamseteController(AutonomousConstants.kRamseteB, AutonomousConstants.kRamseteZeta),
+            //         new SimpleMotorFeedforward(DriveConstants.ksVolts,
+            //                                    DriveConstants.kvVoltSecondsPerMeter,
+            //                                    DriveConstants.kaVoltSecondsSquaredPerMeter),
+            //         DriveConstants.kDriveKinematics,
+            //         driveTrain::getWheelSpeeds, //adjusted getWheelSpeeds first
+            //         new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            //         new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            //         // RamseteCommand passes volts to the callback
+            //         driveTrain::tankDriveVolts,
+            //         driveTrain);
+            // driveTrain.resetOdometry(trajectory.getInitialPose());
 
-            Shuffleboard.getTab("Autonomous").add(chooser);
+
+            // chooser.setDefaultOption("Default Auto", complexAuto);
+            // chooser.addOption("Simple Auto", simpleAuto);
+
+            // Shuffleboard.getTab("Autonomous").add(chooser);
 
   }
 
@@ -219,8 +231,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return chooser.getSelected();
-
+    //return chooser.getSelected();
+            return complexAuto;
             //return ramseteCommand.andThen(() -> driveTrain.tankDriveVolts(0, 0));
             //return ramseteCommand.andThen(() -> scoop.setScoopArmPos(ScoopConstants.scoopArmLowGoalPosition));
             //return ramseteCommand.andThen(new ScoopLowGoalPos(scoop));//, new ScoopExpel(scoop).withTimeout(1));
