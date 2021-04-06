@@ -38,7 +38,7 @@ public class CurvatureDrive extends CommandBase {
     // boolean z = RobotContainer.getQuickTurn();
 
     //m_driveTrain.curvatureDrive(m_y.getAsDouble(), m_x.getAsDouble(), m_z.getAsBoolean());
-    m_driveTrain.curvatureDrive(m_y.getAsDouble(), m_x.getAsDouble(), m_z.getAsBoolean());
+    m_driveTrain.curvatureDrive(m_y.getAsDouble(), (0.75)*m_x.getAsDouble(), m_z.getAsBoolean());
 
   }
 

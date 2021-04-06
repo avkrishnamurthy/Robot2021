@@ -20,6 +20,7 @@ public class StartToLowGoal extends CommandBase {
   @Override
   public void initialize() {
     m_driveTrain.resetEncoders();
+    m_driveTrain.resetGyro();
     m_driveTrain.curvatureDrive(-0.4, 0, false);
   }
 

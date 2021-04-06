@@ -25,7 +25,9 @@ public class AutoShootTrench extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     //addCommands(new StartToLowGoal(driveTrain), new ScoopLowGoalPos(scoop), new ScoopExpel(scoop).withTimeout(1), new LowGoalBack(driveTrain), new ScoopIntakePos(scoop), new AutoDriveToTrench(driveTrain), new TrenchRun(driveTrain, scoop));
     addCommands(
-      new AutoDriveScoopLowGoal(driveTrain, scoop),
+      //new AutoDriveScoopLowGoal(driveTrain, scoop),
+      new StartToLowGoal(driveTrain),
+      new ScoopLowGoalPos(scoop),
       new ScoopExpel(scoop).withTimeout(1),
       new AutoLowGoalBackUpIntakePosition(driveTrain, scoop),
       new AutoDriveToTrench(driveTrain),

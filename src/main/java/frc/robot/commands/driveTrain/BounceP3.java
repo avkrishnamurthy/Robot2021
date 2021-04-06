@@ -7,10 +7,10 @@ package frc.robot.commands.driveTrain;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveTrain;
 
-public class TrenchPath extends CommandBase {
+public class BounceP3 extends CommandBase {
   DriveTrain m_driveTrain;
-  /** Creates a new TrenchPath. */
-  public TrenchPath(DriveTrain driveTrain) {
+  /** Creates a new BounceP3. */
+  public BounceP3(DriveTrain driveTrain) {
     this.m_driveTrain = driveTrain;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveTrain);
@@ -19,14 +19,15 @@ public class TrenchPath extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    m_driveTrain.resetGyro();
     m_driveTrain.resetEncoders();
-    m_driveTrain.curvatureDrive(-0.9, 0, false);
+    m_driveTrain.curvatureDrive(0.7, 0, false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_driveTrain.curvatureDrive(-0.9, 0, false);
+    m_driveTrain.curvatureDrive(0.7, 0, false);
   }
 
   // Called once the command ends or is interrupted.
@@ -39,6 +40,5 @@ public class TrenchPath extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
-    //return m_driveTrain.getRightEncoder() >= 50000;
   }
 }

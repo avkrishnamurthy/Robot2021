@@ -34,6 +34,9 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ScoopConstants;
 import frc.robot.commands.DriveForward;
+import frc.robot.commands.GalacticSearchPathB;
+import frc.robot.commands.RedPathAGalacticSearch;
+import frc.robot.commands.RedPathAGalaticSearchFull;
 import frc.robot.commands.AutoShootTrench;
 import frc.robot.commands.climb.LevelClimb;
 import frc.robot.commands.climb.LiftOff;
@@ -44,9 +47,14 @@ import frc.robot.commands.climb.PresetClimb;
 import frc.robot.commands.controlPanel.Activate;
 import frc.robot.commands.controlPanel.Position;
 import frc.robot.commands.controlPanel.Rotation;
+import frc.robot.commands.driveTrain.AutoBarrel;
+import frc.robot.commands.driveTrain.AutoBounce;
+import frc.robot.commands.driveTrain.AutoSlalom;
+import frc.robot.commands.driveTrain.Circle;
 import frc.robot.commands.driveTrain.CurvatureDrive;
 import frc.robot.commands.driveTrain.HighGear;
 import frc.robot.commands.driveTrain.LowGear;
+import frc.robot.commands.driveTrain.RedPathAFirstBall;
 import frc.robot.commands.driveTrain.StartToLowGoal;
 import frc.robot.commands.driveTrain.StopDrive;
 import frc.robot.commands.scoop.ScoopExpel;
@@ -76,6 +84,11 @@ public class RobotContainer {
   private final ControlPanel controlPanel;
   private final Command simpleAuto;
   private final Command complexAuto;
+  private final Command galacticSearchPathA;
+  private final Command galacticSearchPathB;
+  private final Command autoSlalom;
+  private final Command autoBounce;
+  private final Command autoBarrel;
   private final RamseteCommand ramseteCommand;
   static Joystick buttonStick;
   static Joystick throttleStick;
@@ -93,20 +106,26 @@ public class RobotContainer {
       controlPanel=new ControlPanel();
       simpleAuto=new StartToLowGoal(driveTrain);
       complexAuto = new AutoShootTrench(driveTrain, scoop);
+      galacticSearchPathA = new RedPathAGalaticSearchFull(driveTrain, scoop);
+      galacticSearchPathB = new GalacticSearchPathB(driveTrain, scoop);
+      autoSlalom = new AutoSlalom(driveTrain);
+      autoBounce = new AutoBounce(driveTrain);
+      autoBarrel = new AutoBarrel(driveTrain);
 
-      
-
+      buttonStick=new Joystick(OIConstants.buttonJoystickID);
       throttleStick=new Joystick(OIConstants.throttleJoystickID);
       curveStick=new Joystick(OIConstants.curveJoystickID);
-      buttonStick=new Joystick(OIConstants.buttonJoystickID);
       isQuickTurnButton=new JoystickButton(curveStick,OIConstants.isQuickTurnButtonID);
-      // Configure the button bindings
-      configureButtonBindings();
 
-      driveTrain.setDefaultCommand(new CurvatureDrive(driveTrain, () ->
-      throttleStick.getY(GenericHID.Hand.kLeft),
-      () -> -curveStick.getX(GenericHID.Hand.kRight), () ->
-      isQuickTurnButton.get()));
+      driveTrain.setDefaultCommand(new CurvatureDrive(
+      driveTrain, 
+      () -> throttleStick.getY(GenericHID.Hand.kLeft),
+      () -> -curveStick.getX(GenericHID.Hand.kRight), 
+      () ->isQuickTurnButton.get()));
+      
+      configureButtonBindings();
+      
+
 
         // var autoVoltageConstraint = 
     //     new DifferentialDriveVoltageConstraint(
@@ -187,7 +206,7 @@ public class RobotContainer {
 
       // Climb Buttons
       // Manual
-      // new JoystickButton(buttonStick, OIConstants.climbElevatorManualButtonID)
+      new JoystickButton(buttonStick, OIConstants.climbElevatorManualButtonID);
       // .toggleWhenPressed(new ManualElevator(climb));
       new JoystickButton(buttonStick, OIConstants.climbWinchManualButtonID).toggleWhenPressed(new ManualWinch(climb));
       new JoystickButton(buttonStick, OIConstants.climbManualButtonID).toggleWhenPressed(new ManualClimb(climb));
@@ -214,8 +233,8 @@ public class RobotContainer {
       new JoystickButton(buttonStick, OIConstants.controlPanelActivateButtonID)
               .toggleWhenPressed(new Activate(controlPanel));
       new JoystickButton(buttonStick, OIConstants.controlPanelRotationButtonID).whenPressed(new Rotation(controlPanel));
-      new JoystickButton(buttonStick, OIConstants.controlPanelPositionButtonID)
-              .toggleWhenPressed(new Position(controlPanel));
+    //   new JoystickButton(buttonStick, OIConstants.controlPanelPositionButtonID)
+    //           .toggleWhenPressed(new Position(controlPanel));
   }
 
   public static double getClimbY() {
@@ -232,7 +251,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     //return chooser.getSelected();
-            return complexAuto;
+            return galacticSearchPathA;
             //return ramseteCommand.andThen(() -> driveTrain.tankDriveVolts(0, 0));
             //return ramseteCommand.andThen(() -> scoop.setScoopArmPos(ScoopConstants.scoopArmLowGoalPosition));
             //return ramseteCommand.andThen(new ScoopLowGoalPos(scoop));//, new ScoopExpel(scoop).withTimeout(1));

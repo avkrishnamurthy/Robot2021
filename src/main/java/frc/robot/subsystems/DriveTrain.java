@@ -9,7 +9,6 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import org.ejml.dense.row.mult.SubmatrixOps_FDRM;
 
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -54,6 +53,7 @@ public class DriveTrain extends SubsystemBase {
   private final DifferentialDriveOdometry odometry;
   Pose2d pose;
   public static AHRS nav = new AHRS(SPI.Port.kMXP);
+  //public static AHRS nav = new AHRS(SPI.Port.kMXP);
 
     private final Encoder leftEncoder =
       new Encoder(DriveConstants.kLeftEncoderPorts[0], DriveConstants.kLeftEncoderPorts[1],
@@ -69,11 +69,13 @@ public class DriveTrain extends SubsystemBase {
   //DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(getHeading());
 
   public DriveTrain(){
-    nav.reset();
+    //nav.calibrate();
+    resetGyro();
     initTalons(leftFront, true, false);
     initTalons(leftBack, true, false);
     initTalons(rightFront, false, false);
     initTalons(rightBack, false, false);
+    
     resetEncoders();
     gearShift.set(DoubleSolenoid.Value.kReverse);
     SmartDashboard.putString("Gear: ", "Low Gear");
@@ -81,7 +83,6 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putBoolean("High Gear: ", isHighGear);
     odometry = new DifferentialDriveOdometry(getHeading());
 
-    
     // // Test
     // nav.reset();
     // nav.resetDisplacement();
@@ -102,6 +103,7 @@ public class DriveTrain extends SubsystemBase {
    * @param invert invert direction of motor
    */
   public void initTalons(WPI_TalonFX motor, boolean sensorPhase, boolean invert) {
+    //nav.reset();
     motor.configFactoryDefault();
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     motor.setSensorPhase(sensorPhase);
@@ -136,6 +138,7 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putNumber("Left Distance: ", getLeftEncoder()); 
     SmartDashboard.putNumber("Right Distance: ", getRightEncoder());
     SmartDashboard.putNumber("Heading", -nav.getAngle());
+
 
     odometry.update(getHeading(), 
       Units.inchesToMeters(6*Math.PI) * leftFront.getSelectedSensorPosition() / 
@@ -260,6 +263,14 @@ public class DriveTrain extends SubsystemBase {
              + ((rightFront.getSelectedSensorPosition() * 0.1524 * Math.PI) /(2048.0 * 8.333))) / 2.0;
   }
 
+  public double heading() {
+    return -nav.getAngle();
+  }
+
+  public void resetGyro() {
+    nav.reset();
+  }
+
     /**
    * Sets the max output of the drive.  Useful for scaling the drive to drive more slowly.
    *
@@ -274,6 +285,7 @@ public class DriveTrain extends SubsystemBase {
     // This method will be called once per scheduler run
     pose = odometry.update(
       getHeading(), (leftFront.getSelectedSensorPosition() * 0.1524 * Math.PI) /(2048.0 * 8.333), (rightFront.getSelectedSensorPosition() * 0.1524 * Math.PI) / (2048.0 * 8.333));
-      
+      SmartDashboard.putBoolean("Gyro Connected", nav.isConnected());
+      SmartDashboard.putBoolean("Gyro Calibrating", nav.isCalibrating());
   }
 }

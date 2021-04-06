@@ -7,10 +7,10 @@ package frc.robot.commands.driveTrain;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveTrain;
 
-public class TrenchPath extends CommandBase {
+public class BarrelP1 extends CommandBase {
   DriveTrain m_driveTrain;
-  /** Creates a new TrenchPath. */
-  public TrenchPath(DriveTrain driveTrain) {
+  /** Creates a new BarrelP1. */
+  public BarrelP1(DriveTrain driveTrain) {
     this.m_driveTrain = driveTrain;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveTrain);
@@ -20,6 +20,7 @@ public class TrenchPath extends CommandBase {
   @Override
   public void initialize() {
     m_driveTrain.resetEncoders();
+    m_driveTrain.resetGyro();
     m_driveTrain.curvatureDrive(-0.9, 0, false);
   }
 
@@ -39,6 +40,5 @@ public class TrenchPath extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
-    //return m_driveTrain.getRightEncoder() >= 50000;
   }
 }

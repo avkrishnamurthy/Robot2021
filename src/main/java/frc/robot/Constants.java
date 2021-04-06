@@ -109,7 +109,7 @@ public final class Constants {
         public static final int bottomIntakeTalonID = 8;
 
         //Assuming 0 position is all the way back (starting a match position)
-        public static final int scoopArmIntakePosition = -48000;
+        public static final int scoopArmIntakePosition = -49250;
         public static final int scoopArmLoadingStationPosition = 0;
         //public static final int scoopArmLevelPosition = -8200; //-9063
         public static final int scoopArmLowGoalPosition = -8200; //-14626
@@ -118,8 +118,8 @@ public final class Constants {
         public static final double scoopArmPValue = 1.3;
         public static final double scoopArmIValue = 0;
         public static final double scoopArmDValue = 0;
-        public static final int scoopArmVelocity = 3000;
-        public static final int scoopArmAcceleration = 2250;
+        public static final int scoopArmVelocity = 3000; //3000
+        public static final int scoopArmAcceleration = 2250; //2250
 
     }
 
@@ -130,7 +130,7 @@ public final class Constants {
 
          // ----- Buttons -----
         // Curve Stick
-        public static final int isQuickTurnButtonID = 1;
+        public static final int isQuickTurnButtonID = 2;
   
         // Throttle Stick
         public static final int driveHighGearButtonID = 1;

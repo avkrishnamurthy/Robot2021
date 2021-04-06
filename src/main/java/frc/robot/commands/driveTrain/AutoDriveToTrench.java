@@ -37,7 +37,8 @@ public class AutoDriveToTrench extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_driveTrain.getRightEncoder() >= 60000;
+    //return m_driveTrain.getRightEncoder() >= 94250;
+    return m_driveTrain.heading() <= -166.0;
     //return m_driveTrain.getRightEncoder() >= (2048 * 7.5 * 3.39053 * 2.67);
   }
 }

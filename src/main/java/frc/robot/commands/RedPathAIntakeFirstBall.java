@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import frc.robot.commands.driveTrain.TrenchPath;
 import frc.robot.commands.scoop.ScoopIntake;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Scoop;
@@ -13,13 +12,11 @@ import frc.robot.subsystems.Scoop;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class TrenchRun extends ParallelCommandGroup {
-  DriveTrain m_driveTrain;
-  Scoop m_scoop;
-  /** Creates a new TrenchRun. */
-  public TrenchRun(DriveTrain driveTrain, Scoop scoop) {
+public class RedPathAIntakeFirstBall extends ParallelCommandGroup {
+  /** Creates a new RedPathAIntakeFirstBall. */
+  public RedPathAIntakeFirstBall(DriveTrain driveTrain, Scoop scoop) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new TrenchPath(driveTrain).withTimeout(3.5), new ScoopIntake(scoop).withTimeout(4));
+    addCommands(new RedPathAGalacticSearch(driveTrain), new ScoopIntake(scoop).withTimeout(5.5));
   }
 }
