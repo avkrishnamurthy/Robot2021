@@ -54,12 +54,17 @@ public class ControlPanel extends SubsystemBase {
     controlPanelSolenoid.set(DoubleSolenoid.Value.kForward);
     SmartDashboard.putString("Control Panel", "Retracted");
   }
+  
 
   public void extendControlPanel() {
     controlPanel.setSelectedSensorPosition(0);
     SmartDashboard.putNumber("Control Panel Position: ", controlPanel.getSelectedSensorPosition());
     controlPanelSolenoid.set(DoubleSolenoid.Value.kReverse);
     SmartDashboard.putString("Control Panel", "Extended");
+  }
+
+  public DoubleSolenoid.Value isControlPanelUpOrDown() {
+    return controlPanelSolenoid.get();
   }
  
   public boolean isColorWheelAtPos(int position) {
